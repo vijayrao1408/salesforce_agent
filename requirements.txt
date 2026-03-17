@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+torch==2.2.2
+torchvision==0.18.1
+torchaudio==2.3.1
+numpy==1.26.4
+transformers==4.41.2
+sentence-transformers==2.6.1
+faiss-cpu
+scikit-learn == 1.6.1
+pandas
+nltk
+openpyxl

@@ -48,34 +48,34 @@ print("System loaded successfully!")
 
 
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
+# from transformers import AutoTokenizer, AutoModelForCausalLM
+# import torch
 
-print("Loading LLM...")
+# print("Loading LLM...")
 
-LLM_MODEL = "HuggingFaceTB/SmolLM-1.7B-Instruct"
+# LLM_MODEL = "HuggingFaceTB/SmolLM-1.7B-Instruct"
 
-tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL)
+# tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL)
 
-model = AutoModelForCausalLM.from_pretrained(
-    LLM_MODEL,
-    torch_dtype=torch.float32,
-    low_cpu_mem_usage=True
-)
+# model = AutoModelForCausalLM.from_pretrained(
+#     LLM_MODEL,
+#     torch_dtype=torch.float32,
+#     low_cpu_mem_usage=True
+# )
 
-model = model.to("cpu")
+# model = model.to("cpu")
 
-print("LLM loaded successfully!")
+# print("LLM loaded successfully!")
 
 
-from sentence_transformers import SentenceTransformer, CrossEncoder
+# from sentence_transformers import SentenceTransformer, CrossEncoder
 
-print("Loading embedding models...")
+# print("Loading embedding models...")
 
-embedder = SentenceTransformer("intfloat/e5-base-v2")
-reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-12-v2")
+# embedder = SentenceTransformer("intfloat/e5-base-v2")
+# reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-12-v2")
 
-print("Embedding models loaded")
+# print("Embedding models loaded")
 
 
 FAISS_SIMILARITY_THRESHOLD = 0.40
@@ -270,8 +270,44 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
+embedder = None
+reranker = None
+model = None
+tokenizer = None
+
+
 @app.post("/ask")
 def ask(question: str):
+
+
+    global embedder, reranker, model, tokenizer
+
+    print("Loading models...")
+
+    from sentence_transformers import SentenceTransformer, CrossEncoder
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    import torch
+
+    embedder = SentenceTransformer("intfloat/e5-base-v2")
+
+    reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-12-v2")
+
+    tokenizer = AutoTokenizer.from_pretrained(
+        "HuggingFaceTB/SmolLM-1.7B-Instruct"
+    )
+
+    model = AutoModelForCausalLM.from_pretrained(
+        "HuggingFaceTB/SmolLM-1.7B-Instruct",
+        torch_dtype=torch.float32,
+        low_cpu_mem_usage=True
+    )
+
+    model = model.to("cpu")
+
+    print("Models loaded successfully!")
+
+
+    
 
     print("\nIncoming Question:", question)
 
